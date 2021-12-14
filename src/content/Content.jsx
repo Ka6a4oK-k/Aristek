@@ -67,10 +67,10 @@ export default function Content() {
     }
 
     const add = async () => {
-        if (document.getElementById('input').value !== '') {
-            const addedItem = await axios.post(`${todoURL}`, { title: `${document.getElementById('input').value}`, completed: false, userId: 1 })
+        if (inputEl.current.value !== '') {
+            const addedItem = await axios.post(`${todoURL}`, { title: `${inputEl.current.value}`, completed: false, userId: 1 })
             setTodos([...todos, addedItem.data])
-            document.getElementById('input').value = '';
+            inputEl.current.value = '';
         }
     }
 
@@ -81,15 +81,16 @@ export default function Content() {
         inputEl.current.focus()
         setIsEditable(true)
         setEditable(edited);
-        //await axios.patch(`${todoURL}/${id}`)
     }
 
     const saveEdited = async () => {
-        if (inputEl.current.value !== '') {
+        const inputValue = inputEl.current.value;
+        if (inputValue !== '') {
             const todosCopy = [...todos];
             const editableIndex = todosCopy.findIndex(todo => todo.id === editable.id)
-            todosCopy[editableIndex].title = inputEl.current.value;
+            todosCopy[editableIndex].title = inputValue;
             setTodos([...todosCopy])
+            await axios.patch(`${todoURL}/${editable.id}`, {title: inputValue})
             inputEl.current.value = '';
             setIsEditable(false)
         }
