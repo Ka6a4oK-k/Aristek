@@ -14,9 +14,9 @@ export default function Header() {
                 <span className='title'>Tasks</span>
             </div>
             <div className='header-user'>
-                <span>userName</span>
-                <img src={avatar} alt="avatar" />
-                <select name="userSelect" id="">
+                <span className='user-name'>userName</span>
+                <img className='user-avatar' src={avatar} alt="avatar" />
+                <select className='user-select' name="userSelect" id="">
                 </select>
             </div>
         </div>
