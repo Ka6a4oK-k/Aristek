@@ -1,10 +1,11 @@
 import './App.css';
 import Content from './content/Content';
+import Header from './header/Header.jsx'
 
 function App() {
   return (
     <div className="app">
-      <header className='header'></header>
+      <Header/>
       <div className='main'>
         <div className='sidebar'></div>
         <Content/>
