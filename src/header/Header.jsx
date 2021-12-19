@@ -1,9 +1,20 @@
-import React from 'react'
-import avatar from './header-res/avatar.svg'
+import React, { useEffect, useState} from 'react';
+import UserSelect from './userSelect/UserSelect';
+import axios from 'axios';
+// import avatar from './header-res/avatar.svg'
 import logo from './header-res/logo.svg'
 import './Header.css'
 
 export default function Header() {
+    const [users, setUsers] = useState([])
+
+    useEffect(() => {
+        (async () => {
+            const usersResponse = await axios.get(`https://jsonplaceholder.typicode.com/users`)
+            setUsers(usersResponse.data)
+        })()
+    }, [])
+
     return (
         <div className='header-wrapper'>
             <div className='header-title'>
@@ -14,10 +25,7 @@ export default function Header() {
                 <span className='title'>Tasks</span>
             </div>
             <div className='header-user'>
-                <span className='user-name'>userName</span>
-                <img className='user-avatar' src={avatar} alt="avatar" />
-                <select className='user-select' name="userSelect" id="">
-                </select>
+                <UserSelect users={users}/>
             </div>
         </div>
     )

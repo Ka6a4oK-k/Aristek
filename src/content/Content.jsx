@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useContext } from 'react';
 import TodoList from './todo/TodoList';
 import axios from 'axios';
 import { todoURL } from '../config/base.json';
+import UserContext from '../contexts/UserContext';
 import './Content.css'
 
 export default function Content() {
@@ -10,19 +11,21 @@ export default function Content() {
     const [isEditable, setIsEditable] = useState(false)
     const [editable, setEditable] = useState({})
 
+    const { currUserId } = useContext(UserContext);
+
     const inputEl = useRef(null);
 
     useEffect(() => {
         (async () => {
-            const todosResponse = await axios.get(`${todoURL}?userId=1`)
+            const todosResponse = await axios.get(`${todoURL}?userId=${currUserId}`)
             const notCompleted = todosResponse.data.filter(todo => !todo.completed)
             const completed = todosResponse.data.filter(todo => todo.completed)
             setTodos(notCompleted);
             setCompletedTodos(completed)
         })()
-    }, [])
+    }, [currUserId])
 
-    const complete = async (id, completed) => {
+    const complete = useCallback (async (id, completed) => {
         await axios.patch(`${todoURL}/${id}`, { completed })
         const list = completed ? todos : completedTodos;
         const changedIndex = list.findIndex(todo => todo.id === id)
@@ -33,25 +36,9 @@ export default function Content() {
         const newCompleted = completed ? [...completedTodos, { ...changedTodo, completed }] : newArr;
         setTodos(newTodos)
         setCompletedTodos(newCompleted)
+    }, [todos, completedTodos])
 
-        // if (completed) {
-        //     const changedIndex = todos.findIndex(todo => todo.id === id)
-        //     const changedTodo = todos[changedIndex]; 
-        //     const newArr = [...todos];
-        //     newArr.splice(changedIndex, 1);
-        //     setTodos(newArr)
-        //     setCompletedTodos([...completedTodos, {...changedTodo, completed}])
-        // } else {
-        //     const changedIndex = completedTodos.findIndex(todo => todo.id === id)
-        //     const changedTodo = completedTodos[changedIndex]; 
-        //     const newArr = [...completedTodos];
-        //     newArr.splice(changedIndex, 1);
-        //     setCompletedTodos(newArr)
-        //     setTodos([...todos, {...changedTodo, completed}])
-        // }
-    }
-
-    const deleteItem = async (id, completed) => {
+    const deleteItem = useCallback (async (id, completed) => {
         await axios.delete(`${todoURL}/${id}`, { completed })
         if (completed) {
             const deletedIndex = completedTodos.findIndex(todo => todo.id === id)
@@ -64,26 +51,26 @@ export default function Content() {
             newArr.splice(deletedIndex, 1);
             setTodos([...newArr])
         }
-    }
+    }, [todos, completedTodos])
 
-    const add = async () => {
+    const add = useCallback (async () => {
         if (inputEl.current.value !== '') {
             const addedItem = await axios.post(`${todoURL}`, { title: `${inputEl.current.value}`, completed: false, userId: 1 })
             setTodos([...todos, addedItem.data])
             inputEl.current.value = '';
         }
-    }
+    }, [todos])
 
 
-    const edit = async (id) => {
+    const edit = useCallback (async (id) => {
         const edited = todos.find(item => item.id === id)
         inputEl.current.value = edited.title;
         inputEl.current.focus()
         setIsEditable(true)
         setEditable(edited);
-    }
+    }, [todos])
 
-    const saveEdited = async () => {
+    const saveEdited = useCallback( async () => {
         const inputValue = inputEl.current.value;
         if (inputValue !== '') {
             const todosCopy = [...todos];
@@ -94,7 +81,7 @@ export default function Content() {
             inputEl.current.value = '';
             setIsEditable(false)
         }
-    }
+    }, [todos, editable])
 
     return (
         <div className='content-wrapper'>
