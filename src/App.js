@@ -16,7 +16,6 @@ function App() {
           <Content />
         </div>
       </div>
-      <button onClick={() => console.log(currUserId)}>push</button>
     </UserContext.Provider>
   );
 }
